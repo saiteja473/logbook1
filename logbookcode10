@@ -1,0 +1,47 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Simulated example data (replace these with your actual data)
+epochs = np.arange(1, 21)  # Example for 20 epochs
+precision = np.random.uniform(0.7, 0.95, size=len(epochs))  # Simulated precision values
+accuracy = np.random.uniform(0.8, 0.98, size=len(epochs))  # Simulated accuracy values
+
+# 1. Precision during Training Graph
+plt.figure(figsize=(10, 5))
+plt.plot(epochs, precision, label="Precision", color="blue", marker="o")
+plt.title("Precision During Training")
+plt.xlabel("Epochs")
+plt.ylabel("Precision")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# 2. More Detailed Precision Graph (Zoom in)
+plt.figure(figsize=(10, 5))
+plt.plot(epochs[-10:], precision[-10:], label="Precision (Zoomed)", color="green", marker="o")
+plt.title("Detailed Precision During Training (Last 10 Epochs)")
+plt.xlabel("Epochs")
+plt.ylabel("Precision")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# 3. Training Accuracy Graph
+plt.figure(figsize=(10, 5))
+plt.plot(epochs, accuracy, label="Accuracy", color="red", marker="o")
+plt.title("Training Accuracy")
+plt.xlabel("Epochs")
+plt.ylabel("Accuracy")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# 4. More Detailed Accuracy Graph (Zoom in)
+plt.figure(figsize=(10, 5))
+plt.plot(epochs[-10:], accuracy[-10:], label="Accuracy (Zoomed)", color="orange", marker="o")
+plt.title("Detailed Accuracy During Training (Last 10 Epochs)")
+plt.xlabel("Epochs")
+plt.ylabel("Accuracy")
+plt.legend()
+plt.grid(True)
+plt.show()
