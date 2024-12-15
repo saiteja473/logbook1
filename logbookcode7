@@ -1,0 +1,75 @@
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Replace 'XXXXXZY' with your actual SID
+sid = '2343107'  # Replace with your SID
+Z = int(sid[-2])  # Second to last digit
+Y = int(sid[-1])  # Last digit
+lstm_units = Z * Y + 10  # Compute LSTM units
+
+# Load dataset (example using random data, replace with actual dataset)
+np.random.seed(42)
+data = np.random.rand(1000, 10)  # Example dataset
+target = np.random.rand(1000, 1)
+
+# Preprocessing
+scaler = MinMaxScaler()
+data = scaler.fit_transform(data)
+target = scaler.fit_transform(target)
+
+# Split data
+x_train, x_test, y_train, y_test = train_test_split(data, target, test_size=0.2, random_state=42)
+
+# Reshape for LSTM
+x_train = np.expand_dims(x_train, axis=-1)
+x_test = np.expand_dims(x_test, axis=-1)
+
+# Define LSTM model
+model = Sequential([
+    LSTM(lstm_units, input_shape=(x_train.shape[1], x_train.shape[2])),
+    Dense(1)  # Output layer
+])
+
+# Compile the model
+model.compile(optimizer=Adam(), loss='mse', metrics=['mae'])
+
+# Print LSTM architecture
+print("LSTM Architecture:")
+model.summary()
+
+# Set up early stopping
+early_stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+
+# Train the model
+history = model.fit(
+    x_train, y_train,
+    validation_data=(x_test, y_test),
+    epochs=10,
+    batch_size=32,
+    callbacks=[early_stopping],
+    verbose=2
+)
+
+# Evaluate the model
+test_loss, test_mae = model.evaluate(x_test, y_test, verbose=0)
+
+# Print results
+print("\nTest MSE:", test_loss)
+print("Test MAE:", test_mae)
+
+# Plot MAE graph
+plt.figure(figsize=(10, 6))
+plt.plot(history.history['mae'], label='Train MAE')
+plt.plot(history.history['val_mae'], label='Validation MAE')
+plt.title('MAE During Training')
+plt.xlabel('Epochs')
+plt.ylabel('MAE')
+plt.legend()
+plt.grid(True)
+plt.show()
