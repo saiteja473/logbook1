@@ -1,0 +1,82 @@
+# Required Libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM
+
+# Step 1: Download Ask and Bid datasets
+ask_file = "XAGUSD_5 Mins_Ask_2023.01.01_2023.06.30.csv"
+bid_file = "XAGUSD_5 Mins_Bid_2023.01.01_2023.06.30.csv"
+
+ask_data = pd.read_csv(ask_file)
+bid_data = pd.read_csv(bid_file)
+
+# Step 2: Merge Ask and Bid datasets
+ask_data = ask_data.rename(columns={"Close": "Close_Ask"})
+bid_data = bid_data.rename(columns={"Close": "Close_Bid"})
+merged_data = pd.merge(ask_data, bid_data, on="Time (UTC)")
+
+# Step 3: Plot price and volume charts
+plt.figure(figsize=(12, 6))
+plt.plot(merged_data['Time (UTC)'], merged_data['Close_Ask'], label="Ask Price")
+plt.plot(merged_data['Time (UTC)'], merged_data['Close_Bid'], label="Bid Price")
+plt.xlabel("Time")
+plt.ylabel("Price")
+plt.title("Ask and Bid Prices")
+plt.legend()
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Step 4: Normalize data if necessary
+scaler = MinMaxScaler(feature_range=(0, 1))
+normalized_data = scaler.fit_transform(merged_data[["Close_Ask", "Close_Bid"]])
+
+# Step 5: Shift the Min & Max Prices (time-shift for prediction)
+look_back = 5  # Number of previous steps to consider
+X, y = [], []
+
+for i in range(look_back, len(normalized_data)):
+    X.append(normalized_data[i-look_back:i])  # Last 'look_back' steps as input
+    y.append(normalized_data[i, 0])  # Predicting the "Close_Ask" column
+
+X, y = np.array(X), np.array(y)
+
+# Step 6: Separate Inputs and Outputs Matrices
+# Already separated into X (inputs) and y (outputs)
+
+# Step 7: Create a 3D tensor
+# Data is already in 3D tensor form (required by LSTM)
+
+# Step 8: Create and train neural network
+model = Sequential([
+    LSTM(50, return_sequences=True, input_shape=(X.shape[1], X.shape[2])),
+    LSTM(50, return_sequences=False),
+    Dense(25),
+    Dense(1)
+])
+
+model.compile(optimizer='adam', loss='mean_squared_error')
+history = model.fit(X, y, epochs=10, batch_size=32, validation_split=0.2, verbose=1)
+
+# Step 9: Calculate MSE and MAE on the test dataset
+test_predictions = model.predict(X)
+mse = mean_squared_error(y, test_predictions)
+mae = mean_absolute_error(y, test_predictions)
+
+# Step 10: Plot the results' graphs
+plt.figure(figsize=(12, 6))
+plt.plot(y, label="True Prices")
+plt.plot(test_predictions, label="Predicted Prices")
+plt.xlabel("Time")
+plt.ylabel("Normalized Prices")
+plt.title("True vs Predicted Prices")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+print(f"Mean Squared Error (MSE): {mse}")
+print(f"Mean Absolute Error (MAE): {mae}")
