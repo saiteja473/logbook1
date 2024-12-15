@@ -1,0 +1,21 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Load the dataset
+data = pd.read_csv('telecom_churn.csv')
+
+# Select the columns corresponding to "Total day calls" (7th) and "Total eve calls" (0th)
+col_day_calls = "Total day calls"
+col_eve_calls = "Total eve calls"
+
+# Plot a scatter plot with bicolour distinction
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=data[col_day_calls], y=data[col_eve_calls], hue=data['International plan'], palette="viridis")
+plt.title("Bicolour Features Interaction Diagram: Total Day Calls vs. Total Eve Calls")
+plt.xlabel(col_day_calls)
+plt.ylabel(col_eve_calls)
+plt.legend(title="International Plan")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
