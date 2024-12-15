@@ -1,0 +1,51 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "5f3e77ec-bb0a-4a11-964d-eb4e8205e3a9",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "     relationship  reduced_hours-per-week  count\n",
+      "0         Husband                       6      1\n",
+      "1         Husband                      33      4\n",
+      "2         Husband                      38      1\n",
+      "3         Husband                      73      1\n",
+      "4   Not-in-family                       9      1\n",
+      "5   Not-in-family                      33      2\n",
+      "6   Not-in-family                      43      2\n",
+      "7       Own-child                      23      1\n",
+      "8            Wife                      33      2\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "\n",
+    "# Load the dataset\n",
+    "file_path = 'adult_data_mini.csv'  # Replace with the correct path if needed\n",
+    "data = pd.read_csv(file_path)\n",
+    "\n",
+    "# Define the number (n) based on your SID (last digit = 7)\n",
+    "n = 7\n",
+    "\n",
+    "# Function to reduce 'hours-per-week' by subtracting n\n",
+    "def reduce_hours(hours):\n",
+    "    return hours - n\n",
+    "\n",
+    "# Apply the function to reduce 'hours-per-week'\n",
+    "data['reduced_hours-per-week'] = data['hours-per-week'].apply(reduce_hours)\n",
+    "\n",
+    "# Group by 'relationship' and 'reduced_hours-per-week'\n",
+    "grouped_data = data.groupby(['relationship', 'reduced_hours-per-week']).size().reset_index(name='count')\n",
+    "\n",
+    "# Save and display the result\n",
+    "grouped_data.to_csv('grouped_relationship_hours.csv', index=False)\n",
+    "print(grouped_data)\n"
+   ]
+  },
+  
